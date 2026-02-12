@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-from app.shemas import OrderCreate
+from sqlalchemy import select
+from app.shemas import OrderCreate, SProducts
 from app.database import async_session_maker
-from app.models import Order
+from app.models import Order, Product
+
 
 app = FastAPI()
 
@@ -14,3 +16,12 @@ async def create_order(order: OrderCreate):
             session.add(new_order)
 
     return {"message": "Order created successfully"}
+
+
+#Создание эндпоинта для получения всех продуктов
+@app.get("/products/")
+async def get_products() -> list[SProducts]:
+    async with async_session_maker() as session:
+        query = select(Product)
+        result = await session.execute(query)
+        return result.scalars().all()
