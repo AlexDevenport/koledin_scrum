@@ -15,7 +15,9 @@ import sys
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 from app.config import settings
-from app.models import Product
+from app.users.models import User
+from app.orders.models import Order
+from app.products.models import Product
 from app.database import Base
 
 config = context.config
