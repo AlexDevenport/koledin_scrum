@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class SProducts(BaseModel):
+class SProduct(BaseModel):
     name: str
     price: float  

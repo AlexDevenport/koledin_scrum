@@ -1,0 +1,33 @@
+[project]
+name = "koledin_scrum"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Rezy52", email = "sultanovmansur0303@gmail.com"},
+    {name = "lyxffq", email = "lyxffq@mail.ru"},
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi (>=0.129.0,<0.130.0)",
+    "uvicorn[standart] (>=0.41.0,<0.42.0)",
+    "sqlalchemy (>=2.0.46,<3.0.0)",
+    "asyncpg (>=0.31.0,<0.32.0)",
+    "pydantic (>=2.12.5,<3.0.0)",
+    "pydantic-settings (>=2.13.0,<3.0.0)",
+    "sqlalchemy-utils (>=0.42.1,<0.43.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
