@@ -1,50 +1,35 @@
-from fastapi import FastAPI
-from sqlalchemy import select, text
-from pathlib import Path
 from app.database import async_session_maker
+from app.orders.router import router as orders_router
+from app.products.router import router as products_router
+from app.users.router import router as users_router
+from app.users.models import User
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
+from pathlib import Path
+from sqlalchemy import text
+
 from app.orders.models import Order
 from app.orders.shemas import SOrder
 from app.products.models import Product
 from app.products.shemas import SProduct
-from app.users.models import User
 
 
 app = FastAPI()
+app.include_router(products_router)
+app.include_router(orders_router)
+app.include_router(users_router)
 
 
-# Создание эндпоинта для получения всех продуктов
-@app.get("/products/")
-async def get_products() -> list[SProduct]:
-    async with async_session_maker() as session:
-        query = select(Product)
-        result = await session.execute(query)
+origins = ['*',]
 
-        return result.scalars().all()
-
-
-# Создание эндпоинта для получения всех заказов
-@app.get("/orders/")
-async def get_orders() -> list[SOrder]:
-    async with async_session_maker() as session:
-        query = select(Order)
-        result = await session.execute(query)
-
-        return result.scalars().all()
-    
-
-# Эндпоинт добавления заказа
-@app.post("/create_order/")
-async def create_order(order: SOrder) -> dict:
-    async with async_session_maker() as session:
-        async with session.begin():
-            new_order = new_order = Order(
-                user_id=order.user_id,
-                product_id=order.product_id,
-                amount=order.amount
-            )
-            session.add(new_order)
-
-    return {"message": "Order created successfully"}
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT'],
+    allow_headers=['Content-Type', 'Set-Cookie', 'Access-Control-Allow-Headers', 
+                   'Access-Control-Allow-Origin', 'Authorization'],
+)
 
 
 # Временная ручка обновления бд
@@ -61,4 +46,4 @@ async def refresh_db():
                 if command:
                     await session.execute(text(command))
 
-    return {'massage': 'Database filled successfully'}
+    return {'message': 'Database refreshed successfully'}
