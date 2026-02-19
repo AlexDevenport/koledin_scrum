@@ -3,4 +3,7 @@ from pydantic import BaseModel
 
 class SProduct(BaseModel):
     name: str
-    price: float  
+    price: float
+
+    class Config:
+        from_attributes = True
