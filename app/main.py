@@ -2,16 +2,10 @@ from app.database import async_session_maker
 from app.orders.router import router as orders_router
 from app.products.router import router as products_router
 from app.users.router import router as users_router
-from app.users.models import User
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pathlib import Path
 from sqlalchemy import text
-
-from app.orders.models import Order
-from app.orders.shemas import SOrder
-from app.products.models import Product
-from app.products.shemas import SProduct
 
 
 app = FastAPI()

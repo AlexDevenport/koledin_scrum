@@ -8,3 +8,4 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(length=100))
     price = Column(Float)
+    description = Column(String, nullable=True)
