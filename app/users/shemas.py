@@ -1,6 +1,6 @@
 from annotated_types import MinLen, MaxLen
 from pydantic import BaseModel, ConfigDict, EmailStr
-from typing import Annotated, Optional
+from typing import Annotated
 
 
 class SUserBase(BaseModel):
@@ -9,18 +9,22 @@ class SUserBase(BaseModel):
     email: EmailStr
 
 
+class SResponseUser(SUserBase):
+    id: int
+
+
 class SCreateUser(SUserBase):
     pass
 
 
-class SUserPut(SCreateUser):
+class SUpdateUser(SCreateUser):
     pass
 
 
-class SUserPatch(BaseModel):
-    first_name: Optional[Annotated[str, MinLen(2), MaxLen(20)]] = None
-    last_name: Optional[Annotated[str, MinLen(2), MaxLen(20)]] = None
-    email: Optional[EmailStr] = None
+class SUpdateUserPartial(BaseModel):
+    first_name: Annotated[str, MinLen(2), MaxLen(20)] | None = None
+    last_name: Annotated[str, MinLen(2), MaxLen(20)] | None = None
+    email: EmailStr | None = None
 
 
 class User(SUserBase):
