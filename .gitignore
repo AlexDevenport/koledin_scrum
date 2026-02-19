@@ -1,5 +1,4 @@
 __pycache__/
 *.pyc
 .en
-data_for_postgre.sql
 migrations/
