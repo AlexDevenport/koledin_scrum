@@ -35,13 +35,8 @@ async def add_new_order(order_data: SCreateOrder) -> Order:
     
 
 # Удаление заказа
-async def delete_order_by_id(order_id: int) -> None:
+async def delete_order_by_id(order: Order) -> None:
     async with async_session_maker() as session:
-        order = await session.get(Order, order_id)
-
-        if order is None:
-            return False
-        
+        order = await session.merge(order)
         await session.delete(order)
         await session.commit()
-        return True

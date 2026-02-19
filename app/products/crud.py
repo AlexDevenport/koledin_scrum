@@ -19,7 +19,21 @@ async def get_product_by_id(product_id: int) -> Product | None:
         return await session.get(Product, product_id)
 
 
-# Обновление товара методом PUT или PATCH
+# Добавление нового продукта
+async def add_new_product(product_data: SCreateProduct) -> Product:
+    async with async_session_maker() as session:
+        async with session.begin():
+            new_product = Product(
+                name=product_data.name,
+                price=product_data.price,
+                description=product_data.description,
+            )
+            session.add(new_product)
+
+        return new_product
+    
+
+# Обновление продукта методом PUT или PATCH
 async def update_product(
     product: Product,
     product_update: SUpdateProduct | SUpdateProductPartial,
@@ -36,3 +50,11 @@ async def update_product(
         await session.refresh(product)
 
         return product
+    
+
+# Удаление продукта (пока заглушка)
+async def delete_product_by_id(product: Product) -> None:
+    async with async_session_maker() as session:
+        product = await session.merge(product)
+        await session.delete(product)
+        await session.commit()
