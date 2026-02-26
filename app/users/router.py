@@ -1,4 +1,4 @@
-from app.users import crud
+from app.users.crud import UserCrud
 from app.users.models import User
 from app.users.shemas import SResponseUser, SCreateUser, SUpdateUser, SUpdateUserPartial
 from fastapi import APIRouter
@@ -11,7 +11,7 @@ router = APIRouter(prefix='/users', tags=['Users'])
 @router.get('/')
 async def get_orders() -> list[SResponseUser]:
     
-    return await crud.get_all_users()
+    return await UserCrud.get_all()
 
 
 # Эндпоинт полного обновления пользователя

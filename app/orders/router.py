@@ -1,4 +1,4 @@
-from app.orders import crud
+from app.orders.crud import OrderCrud
 from app.orders import dependencies
 from app.orders.models import Order
 from app.orders.shemas import SResponseOrder, SCreateOrder
@@ -12,7 +12,7 @@ router = APIRouter(prefix='/orders', tags=['Orders'])
 @router.get('/')
 async def get_orders() -> list[SResponseOrder]:
     
-    return await crud.get_all_orders()
+    return await OrderCrud.get_all()
 
 
 # Эндпоинт для получения заказа по id
@@ -28,12 +28,4 @@ async def get_order(
 @router.post('/create', status_code=status.HTTP_201_CREATED)
 async def create_order(order: SCreateOrder) -> SResponseOrder:
 
-    return await crud.add_new_order(order)
-
-
-# Эндпоинт удаления заказа
-@router.delete('/delete/{order_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_order(
-    order: Order = Depends(dependencies.get_id_order)
-) -> None:
-    await crud.delete_order_by_id(order)
+    return await OrderCrud.add_order(order)
