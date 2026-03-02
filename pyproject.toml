@@ -5,6 +5,8 @@ description = ""
 authors = [
     {name = "Rezy52", email = "sultanovmansur0303@gmail.com"},
     {name = "lyxffq", email = "lyxffq@mail.ru"},
+    {name = "turyatkodmitry", email = "turyatkod@mail.ru"},
+    {name = "radmir", email = "unknown@mail.ru"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
@@ -17,7 +19,8 @@ dependencies = [
     "pydantic[email] (>=2.12.5,<3.0.0)",
     "pydantic-settings (>=2.13.0,<3.0.0)",
     "sqlalchemy-utils (>=0.42.1,<0.43.0)",
-    "alembic (>=1.18.4,<2.0.0)"
+    "alembic (>=1.18.4,<2.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)"
 ]
 
 [dependency-groups]

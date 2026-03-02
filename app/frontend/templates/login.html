@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - 3D Models Shop</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                3D Models <span>Store</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="catalog.html"><i class="fas fa-cube"></i> Каталог</a></li>
+                <li><a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                    <span class="cart-badge" id="cartCount">0</span>
+                </a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+            </div>
+
+            <!-- Форма входа -->
+            <div id="loginForm" class="auth-form active">
+                <h2>Вход в аккаунт</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" id="loginEmail" required placeholder="Введите ваш email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">
+                            <i class="fas fa-lock"></i>
+                            Пароль
+                        </label>
+                        <input type="password" id="loginPassword" required placeholder="Введите пароль">
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Войти
+                    </button>
+                </form>
+            </div>
+
+            <!-- Форма регистрации -->
+            <div id="registerForm" class="auth-form">
+                <h2>Регистрация</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerFirstName">
+                                <i class="fas fa-user"></i>
+                                Имя
+                            </label>
+                            <input type="text" id="registerFirstName" required placeholder="Введите имя">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="registerLastName">
+                                <i class="fas fa-user"></i>
+                                Фамилия
+                            </label>
+                            <input type="text" id="registerLastName" required placeholder="Введите фамилию">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerEmail">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" id="registerEmail" required placeholder="Введите email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerPassword">
+                            <i class="fas fa-lock"></i>
+                            Пароль
+                        </label>
+                        <input type="password" id="registerPassword" required placeholder="Придумайте пароль">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">
+                            <i class="fas fa-lock"></i>
+                            Подтверждение пароля
+                        </label>
+                        <input type="password" id="registerConfirmPassword" required placeholder="Повторите пароль">
+                    </div>
+
+                    <button type="submit" class="auth-submit">
+                        <i class="fas fa-user-plus"></i>
+                        Зарегистрироваться
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>

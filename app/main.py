@@ -1,17 +1,24 @@
+from fastapi import FastAPI
+from pathlib import Path
+from sqlalchemy import text
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import async_session_maker
 from app.orders.router import router as orders_router
 from app.products.router import router as products_router
 from app.users.router import router as users_router
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
-from pathlib import Path
-from sqlalchemy import text
+from app.pages.router import router as pages_router
 
 
 app = FastAPI()
+
 app.include_router(products_router)
 app.include_router(orders_router)
 app.include_router(users_router)
+app.include_router(pages_router)
+
+app.mount('/static', StaticFiles(directory='app/frontend/static'), 'static')
 
 
 origins = ['*',]

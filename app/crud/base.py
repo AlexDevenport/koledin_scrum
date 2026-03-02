@@ -20,11 +20,4 @@ class BaseCrud:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter)
             result = await session.execute(query)
-            return result.scalar_one_or_none()
-
-    @classmethod
-    async def delete_by_id(cls):
-        async with async_session_maker() as session:
-            query = await session.merge(cls.model)
-            await session.delete(query)
-            await session.commit        
+            return result.scalar_one_or_none()   

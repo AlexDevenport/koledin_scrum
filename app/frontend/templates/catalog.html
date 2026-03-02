@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог 3D моделей</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                3D Models <span>Store</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="${currentPage === 'index' ? 'active' : ''}"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="catalog.html" class="${currentPage === 'catalog' ? 'active' : ''}"><i class="fas fa-cube"></i> Каталог</a></li>
+                <li><a href="cart.html" class="cart-icon ${currentPage === 'cart' ? 'active' : ''}">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                    <span class="cart-badge" id="cartCount">0</span>
+                </a></li>
+                <li><a href="profile.html" class="${currentPage === 'profile' ? 'active' : ''}"><i class="fas fa-user"></i> Профиль</a></li>
+                <!-- Кнопка авторизации будет добавлена через JavaScript -->
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="catalog-header">
+            <h1 style="color: var(--dark-blue);">Каталог 3D моделей</h1>
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Все</button>
+                <button class="filter-btn" data-filter="characters">Персонажи</button>
+                <button class="filter-btn" data-filter="architecture">Архитектура</button>
+                <button class="filter-btn" data-filter="oil">Нефть</button>
+            </div>
+        </div>
+
+        <div class="products-grid" id="productsGrid">
+            <!-- Товары будут загружаться через JavaScript -->
+        </div>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/catalog.js"></script>
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>
