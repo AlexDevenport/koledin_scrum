@@ -262,6 +262,7 @@ function loadProfile() {
                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${item.image}\' style=\'font-size: 3rem;\'></i>'">` 
                                 : `<i class="fas ${item.image}" style="font-size: 3rem;"></i>`
                             }
+                            ${item.badge ? `<span class="product-badge">${item.badge}</span>` : ''}
                         </div>
                         <div class="product-info">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -313,6 +314,7 @@ function addToWishlist(productId) {
             category: product.category,
             image: product.image,
             preview: product.preview,
+            badge: product.badge
         });
         
         saveCurrentUser();
