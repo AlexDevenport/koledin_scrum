@@ -5,7 +5,7 @@ from app.orders.shemas import SResponseOrder, SCreateOrder
 from fastapi import APIRouter, Depends, status
 
 
-router = APIRouter(prefix='/orders', tags=['Orders'])
+router = APIRouter(prefix='/api/orders', tags=['Orders'])
 
 
 # Эндпоинт для получения всех заказов

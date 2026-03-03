@@ -4,7 +4,7 @@ from app.users.shemas import SResponseUser, SCreateUser, SUpdateUser, SUpdateUse
 from fastapi import APIRouter
 
 
-router = APIRouter(prefix='/users', tags=['Users'])
+router = APIRouter(prefix='/api/users', tags=['Users'])
 
 
 # Эндпоинт для получения всех пользователей

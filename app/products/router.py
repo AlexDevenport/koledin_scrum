@@ -5,7 +5,7 @@ from app.products.shemas import SResponseProduct, SCreateProduct, SUpdateProduct
 from fastapi import APIRouter, Depends, status
 
 
-router = APIRouter(prefix='/products', tags=['Products'])
+router = APIRouter(prefix='/api/products', tags=['Products'])
 
 
 # Эндпоинт получения всех продуктов
