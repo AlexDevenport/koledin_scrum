@@ -7,7 +7,7 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="app/frontend/templates")
 
-@router.get("/index")
+@router.get("/")
 async def main_page(
     request: Request
 ):
