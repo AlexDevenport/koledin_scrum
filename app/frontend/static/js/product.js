@@ -126,7 +126,6 @@ function toggleWishlist(productId) {
             category: product.category,
             image: product.image,
             preview: product.preview,
-            badge: product.badge
         });
         
         saveCurrentUser();
