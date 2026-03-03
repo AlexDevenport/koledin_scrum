@@ -9,7 +9,7 @@ const products = [
         category: "architecture",
         price: 340,
         image: "fa-terminal",
-        preview: "images/Object 1/object1_1.png",
+        preview: "/static/images/Object 1/object1_1.png",
         badge: "Новинка",
         description: "Современный терминал для аэропорта или банка.",
         specs: {
@@ -20,9 +20,9 @@ const products = [
             "Освещение": "Настроено"
         },
         images: [
-            "images/Object 1/object1_1.png",
-            "images/Object 1/object1_2.png",
-            "images/Object 1/object1_3.png"
+            "/static/images/Object 1/object1_1.png",
+            "/static/images/Object 1/object1_2.png",
+            "/static/images/Object 1/object1_3.png"
         ]
     },
     {
@@ -31,7 +31,7 @@ const products = [
         category: "oil",
         price: 990,
         image: "fa-filter",
-        preview: "images/Object 2/object2_1.png",
+        preview: "/static/images/Object 2/object2_1.png",
         badge: "Хит продаж",
         description: "Детализированная 3D-модель нефтегазового фильтра. Подходит для дополнения к визуализации трубопроводных линий",
         specs: {
@@ -41,9 +41,9 @@ const products = [
             "Разрезы": "Прозрачные"
         },
         images: [
-            "images/Object 2/object2_1.png",
-            "images/Object 2/object2_2.png",
-            "images/Object 2/object2_3.png"
+            "/static/images/Object 2/object2_1.png",
+            "/static/images/Object 2/object2_2.png",
+            "/static/images/Object 2/object2_3.png"
         ]
     },
     {
@@ -52,7 +52,7 @@ const products = [
         category: "oil",
         price: 510,
         image: "fa-water",
-        preview: "images/Object 3/object3_1.png",
+        preview: "/static/images/Object 3/object3_1.png",
         badge: "Премиум",
         description: "Промышленный резервуар для хранения жидкостей. Идеально для индустриальной визуализации.",
         specs: {
@@ -63,9 +63,9 @@ const products = [
             "Материал": "Металл"
         },
         images: [
-            "images/Object 3/object3_1.png",
-            "images/Object 3/object3_2.png",
-            "images/Object 3/object3_3.png"
+            "/static/images/Object 3/object3_1.png",
+            "/static/images/Object 3/object3_2.png",
+            "/static/images/Object 3/object3_3.png"
         ]
     }
 ];
@@ -106,7 +106,7 @@ function addToCart(productId) {
     }
     
     // Если мы на странице корзины, обновляем отображение
-    if (window.location.pathname.includes('cart.html')) {
+    if (window.location.pathname.includes('/cart')) {
         displayCart();
     }
 }
@@ -118,7 +118,7 @@ function removeFromCart(productId) {
     updateCartCount();
     
     // Если мы на странице корзины, обновляем отображение
-    if (window.location.pathname.includes('cart.html')) {
+    if (window.location.pathname.includes('/cart')) {
         displayCart();
     }
 }

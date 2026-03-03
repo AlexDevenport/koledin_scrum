@@ -19,7 +19,7 @@ function displayProductDetail() {
     const product = products.find(p => p.id === productId);
     
     if (!product) {
-        window.location.href = 'catalog.html';
+        window.location.href = '/catalog';
         return;
     }
 
@@ -103,7 +103,7 @@ function toggleWishlist(productId) {
     if (!currentUser) {
         showNotification('❌ Войдите, чтобы добавлять в избранное');
         setTimeout(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }, 1500);
         return;
     }
@@ -154,7 +154,7 @@ function toggleWishlist(productId) {
     }
     
     // Если мы на странице профиля, обновляем отображение
-    if (window.location.pathname.includes('profile.html')) {
+    if (window.location.pathname.includes('/profile')) {
         loadProfile();
     }
 }
@@ -198,7 +198,7 @@ function goBack() {
     if (document.referrer) {
         window.history.back();
     } else {
-        window.location.href = 'catalog.html';
+        window.location.href = '/catalog';
     }
 }
 

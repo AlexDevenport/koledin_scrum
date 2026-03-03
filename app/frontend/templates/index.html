@@ -15,13 +15,13 @@
                 3D Models <span>Store</span>
             </div>
             <ul class="nav-menu">
-                <li><a href="index.html" class="${currentPage === 'index' ? 'active' : ''}"><i class="fas fa-home"></i> Главная</a></li>
-                <li><a href="catalog.html" class="${currentPage === 'catalog' ? 'active' : ''}"><i class="fas fa-cube"></i> Каталог</a></li>
-                <li><a href="cart.html" class="cart-icon ${currentPage === 'cart' ? 'active' : ''}">
+                <li><a href="/"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="/catalog"><i class="fas fa-cube"></i> Каталог</a></li>
+                <li><a href="/cart" class="cart-icon">
                     <i class="fas fa-shopping-cart"></i> Корзина
                     <span class="cart-badge" id="cartCount">0</span>
                 </a></li>
-                <li><a href="profile.html" class="${currentPage === 'profile' ? 'active' : ''}"><i class="fas fa-user"></i> Профиль</a></li>
+                <li><a href="/profile"><i class="fas fa-user"></i> Профиль</a></li>
                 <!-- Кнопка авторизации будет добавлена через JavaScript -->
             </ul>
         </div>
@@ -109,13 +109,13 @@
             if (categoriesGrid) {
                 categoriesGrid.innerHTML = categories.map(cat => `
                     <div class="product-card">
-                        <div class="product-image" onclick="window.location.href='catalog.html?category=${cat.category}'" style="cursor: pointer;">
+                        <div class="product-image" onclick="window.location.href='/catalog?category=${cat.category}'" style="cursor: pointer;">
                             <i class="fas ${cat.icon}"></i>
                         </div>
                         <div class="product-info">
                             <h3 class="product-title">${cat.name}</h3>
                             <p style="color: var(--gray); margin-bottom: 0.5rem;">${cat.description}</p>
-                            <a href="catalog.html?category=${cat.category}" class="add-to-cart" style="display: inline-block; text-decoration: none; width: 100%; text-align: center;">
+                            <a href="/catalog?category=${cat.category}" class="add-to-cart" style="display: inline-block; text-decoration: none; width: 100%; text-align: center;">
                                 <i class="fas fa-search"></i> Смотреть
                             </a>
                         </div>
@@ -129,7 +129,7 @@
                 const newProducts = products.slice(0, 3);
                 newProductsGrid.innerHTML = newProducts.map(product => `
                     <div class="product-card">
-                        <div class="product-image" onclick="window.location.href='product.html?id=${product.id}'" style="cursor: pointer;">
+                        <div class="product-image" onclick="window.location.href='/product?id=${product.id}'" style="cursor: pointer;">
                             ${product.preview ? 
                                 `<img src="${product.preview}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" 
                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${product.image}\' style=\'font-size: 3rem;\'></i>'">` 
@@ -138,7 +138,7 @@
                             ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
                         </div>
                         <div class="product-info">
-                            <h3 class="product-title" onclick="window.location.href='product.html?id=${product.id}'" style="cursor: pointer;">${product.name}</h3>
+                            <h3 class="product-title" onclick="window.location.href='/product?id=${product.id}'" style="cursor: pointer;">${product.name}</h3>
                             <p style="color: var(--gray); margin-bottom: 0.5rem;">${getCategoryName(product.category)}</p>
                             <div class="product-price">${product.price.toLocaleString('ru-RU')} ₽</div>
                             <button class="add-to-cart" onclick="addToCart(${product.id})" style="width: 100%;">

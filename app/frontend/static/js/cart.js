@@ -9,7 +9,7 @@ function displayCart() {
                 <i class="fas fa-shopping-cart" style="font-size: 5rem; color: var(--light-blue); margin-bottom: 1rem;"></i>
                 <h2 style="color: var(--dark-blue);">Корзина пуста</h2>
                 <p style="margin: 1rem 0; color: var(--gray);">Добавьте товары из каталога</p>
-                <a href="catalog.html" class="add-to-cart" style="display: inline-block; text-decoration: none; padding: 1rem 2rem;">
+                <a href="/catalog" class="add-to-cart" style="display: inline-block; text-decoration: none; padding: 1rem 2rem;">
                     <i class="fas fa-cube"></i> Перейти в каталог
                 </a>
             </div>
@@ -25,13 +25,13 @@ function displayCart() {
         
         return `
             <div class="cart-item">
-                <div class="cart-item-image" onclick="window.location.href='product.html?id=${item.id}'" style="cursor: pointer;">
+                <div class="cart-item-image" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
                     ${product?.preview ? 
                         `<img src="${product.preview}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">` 
                         : `<i class="fas ${item.image}" style="font-size: 2rem; color: white; display: flex; align-items: center; justify-content: center; height: 100%;"></i>`
                     }
                 </div>
-                <div class="cart-item-title" onclick="window.location.href='product.html?id=${item.id}'" style="cursor: pointer;">
+                <div class="cart-item-title" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
                     <h3>${item.name}</h3>
                     <p style="color: var(--gray);">1 шт.</p>
                 </div>

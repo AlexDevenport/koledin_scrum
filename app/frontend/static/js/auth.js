@@ -56,7 +56,7 @@ function updateNavAuth() {
     } else {
         // Пользователь не авторизован
         authItem.innerHTML = `
-            <a href="login.html" class="auth-button">
+            <a href="/login" class="auth-button">
                 <i class="fas fa-sign-in-alt"></i> Войти
             </a>
         `;
@@ -81,7 +81,7 @@ function handleLogin(event) {
         
         // Перенаправляем на главную или предыдущую страницу
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = '/';
         }, 1500);
     } else {
         showNotification('❌ Неверный email или пароль');
@@ -122,7 +122,7 @@ function handleRegister(event) {
     
     // Перенаправляем на главную
     setTimeout(() => {
-        window.location.href = 'index.html';
+        window.location.href = '/';
     }, 1500);
 }
 
@@ -134,9 +134,9 @@ function logout() {
     updateNavAuth();
     
     // Если мы на странице профиля, перенаправляем на главную
-    if (window.location.pathname.includes('profile.html')) {
+    if (window.location.pathname.includes('/profile')) {
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = '/';
         }, 1500);
     }
 }
@@ -173,7 +173,7 @@ function removeFromWishlist(productId) {
         showNotification(`🗑️ ${productName} удален из избранного`);
         
         // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('profile.html')) {
+        if (window.location.pathname.includes('/profile')) {
             loadProfile();
         }
     }
@@ -191,7 +191,7 @@ function loadProfile() {
                 <i class="fas fa-user-circle" style="font-size: 5rem; color: var(--light-blue); margin-bottom: 1rem;"></i>
                 <h2 style="color: var(--dark-blue);">Войдите в аккаунт</h2>
                 <p style="margin: 1rem 0; color: var(--gray);">Чтобы просматривать профиль и историю покупок</p>
-                <a href="login.html" class="add-to-cart" style="display: inline-block; text-decoration: none; padding: 1rem 2rem;">
+                <a href="/login" class="add-to-cart" style="display: inline-block; text-decoration: none; padding: 1rem 2rem;">
                     <i class="fas fa-sign-in-alt"></i> Войти
                 </a>
             </div>
@@ -256,7 +256,7 @@ function loadProfile() {
             ${currentUser.wishlist?.length > 0 ? 
                 currentUser.wishlist.map(item => `
                     <div class="product-card">
-                        <div class="product-image" onclick="window.location.href='product.html?id=${item.id}'" style="cursor: pointer;">
+                        <div class="product-image" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
                             ${item.preview ? 
                                 `<img src="${item.preview}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;" 
                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${item.image}\' style=\'font-size: 3rem;\'></i>'">` 
@@ -266,7 +266,7 @@ function loadProfile() {
                         </div>
                         <div class="product-info">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3 class="product-title" onclick="window.location.href='product.html?id=${item.id}'" style="cursor: pointer;">${item.name}</h3>
+                                <h3 class="product-title" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">${item.name}</h3>
                                 <button class="remove-wishlist-btn" onclick="removeFromWishlist(${item.id})" title="Удалить из избранного">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -290,7 +290,7 @@ function addToWishlist(productId) {
     if (!currentUser) {
         showNotification('❌ Войдите, чтобы добавлять в избранное');
         setTimeout(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }, 1500);
         return;
     }
@@ -321,7 +321,7 @@ function addToWishlist(productId) {
         showNotification(`❤️ ${product.name} добавлен в избранное!`);
         
         // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('profile.html')) {
+        if (window.location.pathname.includes('/profile')) {
             loadProfile();
         }
     } else {
@@ -332,7 +332,7 @@ function addToWishlist(productId) {
         showNotification(`🗑️ ${productName} удален из избранного`);
         
         // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('profile.html')) {
+        if (window.location.pathname.includes('/profile')) {
             loadProfile();
         }
     }
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateNavAuth();
     
     // Если мы на странице профиля, загружаем профиль
-    if (window.location.pathname.includes('profile.html')) {
+    if (window.location.pathname.includes('/profile')) {
         loadProfile();
     }
 });
