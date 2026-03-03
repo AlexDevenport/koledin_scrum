@@ -10,7 +10,6 @@ class Favorite(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # пользователь не может добавить один и тот же товар в избранное дважды
     __table_args__ = (
