@@ -9,7 +9,7 @@ class UserCrud(BaseCrud):
 
     model = User
     
-
+    
     # Обновление пользователя методом PUT
     async def update_user() -> User:
         pass

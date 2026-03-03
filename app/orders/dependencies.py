@@ -8,7 +8,7 @@ from typing import Annotated
 async def get_id_order(
     order_id: Annotated[int, Path]
 ) -> Order:
-    order = await OrderCrud.get_by_id(id = order_id)
+    order = await OrderCrud.get_by_id(id=order_id)
 
     if order is None:
         raise HTTPException(status_code=404, detail='Order not found')

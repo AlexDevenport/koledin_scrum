@@ -1,7 +1,9 @@
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.products.models import Product
+from app.users.models import User
 
 
 class Order(Base):
@@ -10,6 +12,7 @@ class Order(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     total_sum = Column(Integer, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="orders") # двунаправленная связь
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan") # двунаправленная связь

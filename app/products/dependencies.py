@@ -8,7 +8,7 @@ from typing import Annotated
 async def get_id_product(
     product_id: Annotated[int, Path]
 ) -> Product:
-    product = await ProductCrud.get_by_id(id = product_id)
+    product = await ProductCrud.get_by_id(id=product_id)
 
     if product is None:
         raise HTTPException(status_code=404, detail='Product not found')

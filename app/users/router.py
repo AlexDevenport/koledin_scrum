@@ -1,7 +1,10 @@
+from fastapi import APIRouter, Depends
+
+from app.users import dependencies
 from app.users.crud import UserCrud
 from app.users.models import User
 from app.users.shemas import SResponseUser, SCreateUser, SUpdateUser, SUpdateUserPartial
-from fastapi import APIRouter
+
 
 
 router = APIRouter(prefix='/api/users', tags=['Users'])
@@ -9,9 +12,18 @@ router = APIRouter(prefix='/api/users', tags=['Users'])
 
 # Эндпоинт для получения всех пользователей
 @router.get('/')
-async def get_orders() -> list[SResponseUser]:
+async def get_users() -> list[SResponseUser]:
     
     return await UserCrud.get_all()
+
+
+# Эндпоинт для получения пользователя по id
+@router.get('/{user_id}')
+async def get_user(
+    user: User = Depends(dependencies.get_id_user)
+) -> SResponseUser | None:
+
+    return user
 
 
 # Эндпоинт полного обновления пользователя

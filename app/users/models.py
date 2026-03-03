@@ -2,6 +2,7 @@ from sqlalchemy import Column, DateTime, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.favorites.models import Favorite
 
 
 class User(Base):

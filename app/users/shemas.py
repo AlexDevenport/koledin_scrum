@@ -1,5 +1,5 @@
 from annotated_types import MinLen, MaxLen
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Annotated
 
 
@@ -10,7 +10,7 @@ class SUserBase(BaseModel):
 
 
 class SResponseUser(SUserBase):
-    id: int
+    id: int = Field(..., ge=1)
 
 
 class SCreateUser(SUserBase):
@@ -30,4 +30,4 @@ class SUpdateUserPartial(BaseModel):
 class User(SUserBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int = Field(..., ge=1)

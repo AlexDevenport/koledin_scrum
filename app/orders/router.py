@@ -1,7 +1,7 @@
 from app.orders.crud import OrderCrud
 from app.orders import dependencies
 from app.orders.models import Order
-from app.orders.shemas import SResponseOrder, SCreateOrder
+from app.orders.shemas import SResponseOrder, SOrderCreateWithItems
 from fastapi import APIRouter, Depends, status
 
 
@@ -26,6 +26,7 @@ async def get_order(
 
 # Эндпоинт добавления заказа
 @router.post('/create', status_code=status.HTTP_201_CREATED)
-async def create_order(order: SCreateOrder) -> SResponseOrder:
-
-    return await OrderCrud.add_order(order)
+async def create_order(order_data: SOrderCreateWithItems) -> SResponseOrder:
+    created_order = await OrderCrud.create_with_items(order_data)
+    
+    return SResponseOrder.model_validate(created_order)

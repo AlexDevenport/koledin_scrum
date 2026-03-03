@@ -18,6 +18,13 @@ class ProductCrud(BaseCrud):
                     name=product_data.name,
                     price=product_data.price,
                     description=product_data.description,
+                    category=product_data.category,
+                    preview_image=product_data.preview_image,
+                    polygons_count=product_data.polygons_count,
+                    texture_quality=product_data.texture_quality,
+                    formats=product_data.formats,
+                    views_count=product_data.views_count,
+                    rating=product_data.rating,
                 )
                 session.add(new_product)
 
