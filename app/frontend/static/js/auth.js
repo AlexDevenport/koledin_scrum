@@ -162,7 +162,13 @@ function switchAuthTab(tab) {
 
 // Функция для удаления из избранного
 function removeFromWishlist(productId) {
-    if (!currentUser) return;
+    if (!currentUser) {
+        showNotification('❌ Необходимо авторизоваться');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
     
     const productIndex = currentUser.wishlist.findIndex(item => item.id === productId);
     
@@ -302,6 +308,14 @@ function loadProfile() {
 
 // Функция для скачивания товара
 function downloadProduct(productId) {
+    if (!currentUser) {
+        showNotification('❌ Необходимо авторизоваться');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
+    
     const product = products.find(p => p.id === productId);
     if (product) {
         showNotification(`📥 Начинается загрузка файла "${product.name}"...`);

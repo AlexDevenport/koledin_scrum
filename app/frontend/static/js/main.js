@@ -78,6 +78,15 @@ function updateCartCount() {
 
 // Добавление товара в корзину (только один раз)
 function addToCart(productId) {
+    // Проверяем, авторизован ли пользователь
+    if (!currentUser) {
+        showNotification('❌ Для добавления в корзину необходимо войти в аккаунт');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
+    
     const product = products.find(p => p.id === productId);
     
     const existingItem = cart.find(item => item.id === productId);

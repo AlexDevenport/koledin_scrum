@@ -231,6 +231,14 @@ function goBack() {
 
 // Функция для скачивания товара
 function downloadProduct(productId) {
+    if (!currentUser) {
+        showNotification('❌ Необходимо авторизоваться');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
+    
     const product = products.find(p => p.id === productId);
     if (product) {
         showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
