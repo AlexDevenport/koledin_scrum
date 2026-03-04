@@ -31,3 +31,7 @@ class User(SUserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., ge=1)
+
+class SUserAuth(BaseModel):
+    email: EmailStr
+    password: str        

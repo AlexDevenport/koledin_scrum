@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
+
+from app.users.dependencies import get_current_user
+from app.users.models import User
 
 router = APIRouter(
     tags= ["Фронтенд"]
@@ -38,8 +41,15 @@ async def product_page(
     return templates.TemplateResponse(name="product.html", context={"request" : request})
 
 @router.get("/profile")
-async def profile_page(
-    request: Request
+async def profile(
+    request: Request,
+    user: User = Depends(get_current_user)
 ):
-    return templates.TemplateResponse(name="profile.html", context={"request" : request})
+    return templates.TemplateResponse(
+        "profile.html",
+        {
+            "request": request,
+            "user": user
+        }
+    )
 
