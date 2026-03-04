@@ -860,7 +860,7 @@ body {
 }
 
 .profile-info p {
-    color: var(--gray);
+    color: #202020;
     margin-bottom: 0.3rem;
 }
 

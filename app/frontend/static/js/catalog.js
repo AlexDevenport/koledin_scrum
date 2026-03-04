@@ -15,7 +15,6 @@ function displayProducts(filter = 'all') {
                     `<img src="${product.preview}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${product.image}\' style=\'font-size: 3rem;\'></i>'">` 
                     : `<i class="fas ${product.image}"></i>`
                 }
-                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
             </div>
             <div class="product-info">
                 <h3 class="product-title" onclick="window.location.href='/product?id=${product.id}'" style="cursor: pointer;">${product.name}</h3>
