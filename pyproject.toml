@@ -21,9 +21,8 @@ dependencies = [
     "sqlalchemy-utils (>=0.42.1,<0.43.0)",
     "alembic (>=1.18.4,<2.0.0)",
     "jinja2 (>=3.1.6,<4.0.0)",
-    "bcrypt (==3.2.2)",
-    "passlib (>=1.7.4,<2.0.0)",
     "python-multipart (>=0.0.22,<0.0.23)",
+    "bcrypt (==3.2.2)",
 ]
 
 [dependency-groups]
