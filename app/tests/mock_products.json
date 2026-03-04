@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "Аэропортовый киоск self-check-in",
+    "price": 420,
+    "category": "Архитектура",
+    "description": "Современный терминал самостоятельной регистрации с поддержкой багажных тегов",
+    "preview_image": "https://example.com/img/terminal-01-preview.jpg",
+    "images": ["https://example.com/img/terminal-01-a.jpg", "https://example.com/img/terminal-01-b.jpg"],
+    "polygons_count": 92000,
+    "texture_quality": "4K",
+    "formats": ["FBX", "OBJ", "USDZ"],
+    "views_count": 412,
+    "rating": 4.7
+  },
+  {
+    "id": 2,
+    "name": "Нефтяной сепаратор высокого давления",
+    "price": 1250,
+    "category": "Нефть и газ",
+    "description": "Детализированная модель 3-фазного сепаратора с арматурой и КИП",
+    "preview_image": "https://example.com/img/separator-preview-2k.jpg",
+    "images": ["https://example.com/img/sep-a.jpg", "https://example.com/img/sep-b.jpg", "https://example.com/img/sep-c.jpg"],
+    "polygons_count": 128000,
+    "texture_quality": "4K PBR",
+    "formats": ["FBX", "OBJ"],
+    "views_count": 189,
+    "rating": 4.3
+  },
+  {
+    "id": 3,
+    "name": "Горизонтальный резервуар РГС-50",
+    "price": 680,
+    "category": "Нефть и газ",
+    "description": "Наземный горизонтальный резервуар 50 м³ с лестницей и обвязкой",
+    "preview_image": "https://example.com/img/tank-rgs50.jpg",
+    "images": ["https://example.com/img/tank-01.jpg", "https://example.com/img/tank-02.jpg"],
+    "polygons_count": 45000,
+    "texture_quality": "2K",
+    "formats": ["FBX", "BLEND"],
+    "views_count": 267,
+    "rating": 4.6
+  },
+  {
+    "id": 4,
+    "name": "Топливозаправочная колонка",
+    "price": 890,
+    "category": "Нефть и газ",
+    "description": "Современная АЗС-колонка двойного отпуска с дисплеем",
+    "preview_image": "https://example.com/img/fuel-dispenser-preview.jpg",
+    "images": ["https://example.com/img/column-1.jpg", "https://example.com/img/column-2.jpg"],
+    "polygons_count": 38000,
+    "texture_quality": "4K",
+    "formats": ["FBX", "OBJ"],
+    "views_count": 531,
+    "rating": 4.8
+  }
+]

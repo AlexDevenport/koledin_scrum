@@ -1,0 +1,10 @@
+[
+  {"order_id": 1001, "product_id": 1, "quantity": 1, "price_at_buy": 420},
+  {"order_id": 1001, "product_id": 3, "quantity": 1, "price_at_buy": 680},
+  {"order_id": 1002, "product_id": 2, "quantity": 1, "price_at_buy": 1250},
+  {"order_id": 1002, "product_id": 4, "quantity": 1, "price_at_buy": 890},
+  {"order_id": 1002, "product_id": 1, "quantity": 1, "price_at_buy": 420},
+  {"order_id": 1003, "product_id": 1, "quantity": 1, "price_at_buy": 420},
+  {"order_id": 1004, "product_id": 3, "quantity": 1, "price_at_buy": 680},
+  {"order_id": 1005, "product_id": 2, "quantity": 1, "price_at_buy": 1250}
+]

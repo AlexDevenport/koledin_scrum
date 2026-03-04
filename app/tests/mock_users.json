@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "first_name": "Иван",
+    "last_name": "Петров",
+    "email": "ivan.petrov@example.com",
+    "hashed_password": "pbkdf2_sha256$720000$abc123$salthashuser1",
+    "bonus_points": 320,
+    "created_at": "2025-11-12T14:30:00"
+  },
+  {
+    "id": 2,
+    "first_name": "Анна",
+    "last_name": "Смирнова",
+    "email": "anna.smirnova@gmail.com",
+    "hashed_password": "pbkdf2_sha256$720000$def456$salthashuser2",
+    "bonus_points": 145,
+    "created_at": "2025-12-03T09:15:22"
+  },
+  {
+    "id": 3,
+    "first_name": "Дмитрий",
+    "last_name": "Козлов",
+    "email": "d.kozlov@work.ru",
+    "hashed_password": "pbkdf2_sha256$720000$ghi789$salthashuser3",
+    "bonus_points": 0,
+    "created_at": "2026-01-19T18:42:10"
+  },
+  {
+    "id": 4,
+    "first_name": "Екатерина",
+    "last_name": "Волкова",
+    "email": "kate.vlk@ya.ru",
+    "hashed_password": "pbkdf2_sha256$720000$jkl012$salthashuser4",
+    "bonus_points": 580,
+    "created_at": "2025-10-28T11:05:47"
+  }
+]
