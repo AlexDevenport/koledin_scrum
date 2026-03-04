@@ -7,6 +7,7 @@ from app.users.crud import UserCrud
 from app.users.models import User
 from app.users.shemas import SResponseUser, SCreateUser, SUpdateUser, SUpdateUserPartial, SUserAuth
 from app.database import async_session_maker
+from app.users.dependencies import get_current_user
 
 
 
@@ -20,15 +21,6 @@ async def get_users() -> list[SResponseUser]:
     return await UserCrud.get_all()
 
 
-# Эндпоинт для получения пользователя по id
-@router.get('/{user_id}')
-async def get_user(
-    user: User = Depends(dependencies.get_id_user)
-) -> SResponseUser | None:
-
-    return user
-
-
 # Эндпоинт полного обновления пользователя
 @router.put('/update/{user_id}')
 async def update_all_user() -> SResponseUser:
@@ -39,7 +31,6 @@ async def update_all_user() -> SResponseUser:
 @router.patch('/update/{user_id}')
 async def update_part_of_user() -> SResponseUser:
     pass
-
 
 
 @router.post("/register")
@@ -66,7 +57,6 @@ async def register(
         httponly=True,
         samesite="lax"
     )
-    
 
 
 @router.post("/login")
@@ -89,21 +79,30 @@ async def login(
     
 
 
-
 @router.post("/logout")
 async def logout(response: Response):
     response.delete_cookie("user_id")
 
 
+@router.get("/me", response_model=SResponseUser)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return SResponseUser(
+        id=current_user.id,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        email=current_user.email,
+        bonus_points=current_user.bonus_points,
+        created_at=current_user.created_at
+    )
 
 
-# @router.get("/me")
-# async def get_me(current_user: User = Depends(dependencies.get_current_user)):
-#     return {
-#         "id": current_user.id,
-#         "first_name": current_user.first_name,
-#         "last_name": current_user.last_name,
-#         "email": current_user.email,
-#         "bonus_points": current_user.bonus_points,
-#         "created_at": current_user.created_at
-#     }
+# Эндпоинт для получения пользователя по id
+@router.get('/{user_id}')
+async def get_user(
+    user: User = Depends(dependencies.get_id_user)
+) -> SResponseUser | None:
+
+    return user
+
+    
+

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from annotated_types import MinLen, MaxLen
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Annotated
@@ -9,8 +11,14 @@ class SUserBase(BaseModel):
     email: EmailStr
 
 
-class SResponseUser(SUserBase):
-    id: int = Field(..., ge=1)
+class SResponseUser(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    bonus_points: int
+    created_at: datetime
+
 
 
 class SCreateUser(SUserBase):
