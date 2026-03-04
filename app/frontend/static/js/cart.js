@@ -63,9 +63,51 @@ function checkout() {
         return;
     }
     
+    // Проверяем, авторизован ли пользователь
+    if (!currentUser) {
+        showNotification('❌ Для оформления заказа необходимо войти в аккаунт');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
+    
     const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    // Добавляем товары в историю покупок пользователя
+    if (!currentUser.purchases) {
+        currentUser.purchases = [];
+    }
+    
+    // Добавляем каждый товар из корзины в покупки
+    cart.forEach(item => {
+        const product = products.find(p => p.id === item.id);
+        if (product) {
+            currentUser.purchases.push({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                category: product.category,
+                image: product.image,
+                preview: product.preview,
+                date: new Date().toISOString()
+            });
+        }
+    });
+    
+    // Сохраняем обновленные данные пользователя
+    saveCurrentUser();
+    
+    // Обновляем пользователя в общем списке users
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex] = currentUser;
+        saveUsers();
+    }
+    
     showNotification(`✅ Заказ оформлен на сумму ${total.toLocaleString('ru-RU')} ₽! Спасибо за покупку!`);
     
+    // Очищаем корзину
     cart = [];
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();

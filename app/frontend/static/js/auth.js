@@ -160,7 +160,7 @@ function switchAuthTab(tab) {
     }
 }
 
-// Функция для удаления из избранного (для обратной совместимости)
+// Функция для удаления из избранного
 function removeFromWishlist(productId) {
     if (!currentUser) return;
     
@@ -170,6 +170,14 @@ function removeFromWishlist(productId) {
         const productName = currentUser.wishlist[productIndex].name;
         currentUser.wishlist.splice(productIndex, 1);
         saveCurrentUser();
+        
+        // Обновляем пользователя в общем списке users
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = currentUser;
+            saveUsers();
+        }
+        
         showNotification(`🗑️ ${productName} удален из избранного`);
         
         // Если мы на странице профиля, обновляем отображение
@@ -225,7 +233,7 @@ function loadProfile() {
                 <div>В избранном</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">245</div>
+                <div class="stat-value">${Math.floor((currentUser.purchases?.reduce((sum, item) => sum + item.price, 0) || 0) * 0.1)}</div>
                 <div>Бонусных баллов</div>
             </div>
         </div>
@@ -233,15 +241,23 @@ function loadProfile() {
         <h3 style="color: var(--dark-blue); margin: 2rem 0 1rem;">Мои покупки</h3>
         <div class="products-grid" id="purchasesGrid">
             ${currentUser.purchases?.length > 0 ? 
-                currentUser.purchases.map(purchase => `
+                currentUser.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).map(purchase => `
                     <div class="product-card">
-                        <div class="product-image">
-                            <i class="fas ${purchase.image || 'fa-cube'}"></i>
+                        <div class="product-image" onclick="window.location.href='/product?id=${purchase.id}'" style="cursor: pointer;">
+                            ${purchase.preview ? 
+                                `<img src="${purchase.preview}" alt="${purchase.name}" style="width: 100%; height: 100%; object-fit: cover;" 
+                                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${purchase.image || 'fa-cube'}\' style=\'font-size: 3rem;\'></i>'">` 
+                                : `<i class="fas ${purchase.image || 'fa-cube'}" style="font-size: 3rem;"></i>`
+                            }
                         </div>
                         <div class="product-info">
-                            <h3 class="product-title">${purchase.name}</h3>
-                            <div class="product-price" style="font-size: 1rem; color: var(--gray);">Куплен ${new Date(purchase.date).toLocaleDateString('ru-RU')}</div>
-                            <button class="add-to-cart" style="width: 100%;" onclick="showNotification('Файл скачивается...')">
+                            <h3 class="product-title" onclick="window.location.href='/product?id=${purchase.id}'" style="cursor: pointer;">${purchase.name}</h3>
+                            <p style="color: var(--gray); margin-bottom: 0.5rem;">${getCategoryName(purchase.category)}</p>
+                            <div class="product-price" style="font-size: 1.2rem;">${purchase.price.toLocaleString('ru-RU')} ₽</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin: 0.5rem 0;">
+                                <i class="fas fa-calendar-alt"></i> ${new Date(purchase.date).toLocaleDateString('ru-RU')}
+                            </p>
+                            <button class="add-to-cart" style="width: 100%;" onclick="downloadProduct(${purchase.id})">
                                 <i class="fas fa-download"></i> Скачать
                             </button>
                         </div>
@@ -284,7 +300,16 @@ function loadProfile() {
     `;
 }
 
-// Добавление в избранное (обновленная функция)
+// Функция для скачивания товара
+function downloadProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+        showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
+        // Здесь можно добавить реальную логику скачивания файла
+    }
+}
+
+// Добавление в избранное
 function addToWishlist(productId) {
     if (!currentUser) {
         showNotification('❌ Войдите, чтобы добавлять в избранное');
@@ -316,6 +341,14 @@ function addToWishlist(productId) {
         });
         
         saveCurrentUser();
+        
+        // Обновляем пользователя в общем списке users
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = currentUser;
+            saveUsers();
+        }
+        
         showNotification(`❤️ ${product.name} добавлен в избранное!`);
         
         // Если мы на странице профиля, обновляем отображение
@@ -327,6 +360,14 @@ function addToWishlist(productId) {
         const productName = currentUser.wishlist[existingItemIndex].name;
         currentUser.wishlist.splice(existingItemIndex, 1);
         saveCurrentUser();
+        
+        // Обновляем пользователя в общем списке users
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = currentUser;
+            saveUsers();
+        }
+        
         showNotification(`🗑️ ${productName} удален из избранного`);
         
         // Если мы на странице профиля, обновляем отображение

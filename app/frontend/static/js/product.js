@@ -13,6 +13,12 @@ function isInWishlist(productId) {
     return currentUser.wishlist.some(item => item.id === productId);
 }
 
+// Проверка, куплен ли товар
+function isPurchased(productId) {
+    if (!currentUser || !currentUser.purchases) return false;
+    return currentUser.purchases.some(item => item.id === productId);
+}
+
 // Отображение детальной информации о товаре
 function displayProductDetail() {
     const productId = getProductId();
@@ -26,8 +32,9 @@ function displayProductDetail() {
     const productDetail = document.getElementById('productDetail');
     if (!productDetail) return;
     
-    // Проверяем, в избранном ли товар
+    // Проверяем, в избранном ли товар и куплен ли он
     const inWishlist = isInWishlist(productId);
+    const purchased = isPurchased(productId);
     
     // Создаем HTML для галереи
     const thumbnailsHtml = product.images.map((img, index) => `
@@ -87,9 +94,14 @@ function displayProductDetail() {
             </div>
             
             <div class="product-actions-detail">
-                <button class="add-to-cart-detail" onclick="addToCart(${product.id})">
-                    <i class="fas fa-shopping-cart"></i> Добавить в корзину
-                </button>
+                ${purchased ? 
+                    `<button class="add-to-cart-detail" onclick="downloadProduct(${product.id})" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                        <i class="fas fa-download"></i> Скачать (уже куплено)
+                    </button>` :
+                    `<button class="add-to-cart-detail" onclick="addToCart(${product.id})">
+                        <i class="fas fa-shopping-cart"></i> Добавить в корзину
+                    </button>`
+                }
                 <button class="wishlist-btn ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${product.id})" id="wishlistBtn">
                     <i class="fas ${inWishlist ? 'fa-heart' : 'fa-heart'}"></i>
                 </button>
@@ -129,6 +141,14 @@ function toggleWishlist(productId) {
         });
         
         saveCurrentUser();
+        
+        // Обновляем пользователя в общем списке users
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = currentUser;
+            saveUsers();
+        }
+        
         showNotification(`❤️ ${product.name} добавлен в избранное!`);
         
         // Меняем иконку кнопки
@@ -142,6 +162,14 @@ function toggleWishlist(productId) {
         const productName = currentUser.wishlist[existingItemIndex].name;
         currentUser.wishlist.splice(existingItemIndex, 1);
         saveCurrentUser();
+        
+        // Обновляем пользователя в общем списке users
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = currentUser;
+            saveUsers();
+        }
+        
         showNotification(`🗑️ ${productName} удален из избранного`);
         
         // Меняем иконку кнопки
@@ -187,7 +215,7 @@ function getCategoryName(category) {
     const categories = {
         'characters': 'Персонажи',
         'architecture': 'Архитектура',
-        'vehicles': 'Транспорт'
+        'oil': 'Нефть'
     };
     return categories[category] || category;
 }
@@ -198,6 +226,15 @@ function goBack() {
         window.history.back();
     } else {
         window.location.href = '/catalog';
+    }
+}
+
+// Функция для скачивания товара
+function downloadProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+        showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
+        // Здесь можно добавить реальную логику скачивания файла
     }
 }
 
