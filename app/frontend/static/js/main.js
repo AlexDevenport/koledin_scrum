@@ -1,8 +1,8 @@
 // Работа с корзиной
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-// База данных товаров
-const products = [
+// База данных товаров (делаем глобальной)
+window.products = [
     {
         id: 1,
         name: "Терминал",
@@ -71,15 +71,15 @@ const products = [
 function updateCartCount() {
     const cartCount = document.getElementById('cartCount');
     if (cartCount) {
-        const totalItems = cart.length; // Просто количество товаров, так как quantity всегда 1
+        const totalItems = cart.length;
         cartCount.textContent = totalItems;
     }
 }
 
 // Добавление товара в корзину (только один раз)
 function addToCart(productId) {
-    // Проверяем, авторизован ли пользователь
-    if (!currentUser) {
+    // Проверяем, авторизован ли пользователь через глобальную переменную currentUser из auth.js
+    if (!window.currentUser) {
         showNotification('❌ Для добавления в корзину необходимо войти в аккаунт');
         setTimeout(() => {
             window.location.href = '/login';
@@ -87,7 +87,7 @@ function addToCart(productId) {
         return;
     }
     
-    const product = products.find(p => p.id === productId);
+    const product = window.products.find(p => p.id === productId);
     
     const existingItem = cart.find(item => item.id === productId);
     
@@ -153,6 +153,30 @@ function showNotification(message) {
         notification.remove();
     }, 3000);
 }
+
+// Функция для скачивания товара (добавляем в глобальную область)
+window.downloadProduct = function(productId) {
+    if (!window.currentUser) {
+        showNotification('❌ Необходимо авторизоваться');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+        return;
+    }
+    
+    const product = window.products.find(p => p.id === productId);
+    if (product) {
+        showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
+        // Здесь можно добавить реальную логику скачивания файла
+    }
+};
+
+// Делаем функции глобальными
+window.cart = cart;
+window.updateCartCount = updateCartCount;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.showNotification = showNotification;
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {

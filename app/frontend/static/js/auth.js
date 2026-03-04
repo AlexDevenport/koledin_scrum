@@ -1,31 +1,24 @@
-// Класс для работы с пользователями
-class User {
-    constructor(firstName, lastName, email, password) {
-        this.id = Date.now();
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password; // В реальном проекте пароль должен хешироваться
-        this.registeredAt = new Date().toISOString();
-        this.purchases = [];
-        this.wishlist = [];
-    }
-}
-
 // Текущий пользователь
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let currentUser = null;
 
-// Все пользователи
-let users = JSON.parse(localStorage.getItem('users')) || [];
-
-// Сохранение пользователей в localStorage
-function saveUsers() {
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
-// Сохранение текущего пользователя
-function saveCurrentUser() {
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+// Проверка авторизации при загрузке
+async function checkAuth() {
+    try {
+        const response = await fetch('/api/users/me', {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            currentUser = await response.json();
+            console.log('Пользователь авторизован:', currentUser);
+        } else {
+            currentUser = null;
+            console.log('Пользователь не авторизован');
+        }
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error);
+        currentUser = null;
+    }
+    updateNavAuth();
 }
 
 // Обновление навигации (кнопка входа/выхода)
@@ -47,7 +40,7 @@ function updateNavAuth() {
         authItem.innerHTML = `
             <div class="user-greeting">
                 <i class="fas fa-user-circle"></i>
-                <span>${currentUser.firstName}</span>
+                <span>${currentUser.first_name}</span>
                 <a href="#" onclick="logout(); return false;" style="color: white; margin-left: 10px;" title="Выйти">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
@@ -66,30 +59,50 @@ function updateNavAuth() {
 }
 
 // Обработка входа
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    const user = users.find(u => u.email === email && u.password === password);
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
 
-    if (user) {
-        currentUser = user;
-        saveCurrentUser();
-        showNotification(`✅ С возвращением, ${user.firstName}!`);
-        
-        // Перенаправляем на главную или предыдущую страницу
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1500);
-    } else {
-        showNotification('❌ Неверный email или пароль');
+    try {
+        const response = await fetch('/api/users/login', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            // После успешного входа получаем данные пользователя
+            const userResponse = await fetch('/api/users/me', {
+                credentials: 'include'
+            });
+            
+            if (userResponse.ok) {
+                currentUser = await userResponse.json();
+                showNotification(`✅ С возвращением, ${currentUser.first_name}!`);
+                
+                // Перенаправляем на главную
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            }
+        } else {
+            const errorData = await response.json();
+            showNotification(`❌ ${errorData.detail || 'Ошибка входа'}`);
+        }
+    } catch (error) {
+        console.error('Ошибка при входе:', error);
+        showNotification('❌ Ошибка соединения с сервером');
     }
 }
 
 // Обработка регистрации
-function handleRegister(event) {
+async function handleRegister(event) {
     event.preventDefault();
     
     const firstName = document.getElementById('registerFirstName').value;
@@ -104,40 +117,67 @@ function handleRegister(event) {
         return;
     }
 
-    // Проверка существования пользователя
-    if (users.some(u => u.email === email)) {
-        showNotification('❌ Пользователь с таким email уже существует');
-        return;
-    }
+    const formData = new FormData();
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
+    formData.append('email', email);
+    formData.append('password', password);
 
-    // Создание нового пользователя
-    const newUser = new User(firstName, lastName, email, password);
-    users.push(newUser);
-    saveUsers();
-    
-    currentUser = newUser;
-    saveCurrentUser();
-    
-    showNotification(`✅ Регистрация успешна! Добро пожаловать, ${firstName}!`);
-    
-    // Перенаправляем на главную
-    setTimeout(() => {
-        window.location.href = '/';
-    }, 1500);
+    try {
+        const response = await fetch('/api/users/register', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            // После успешной регистрации получаем данные пользователя
+            const userResponse = await fetch('/api/users/me', {
+                credentials: 'include'
+            });
+            
+            if (userResponse.ok) {
+                currentUser = await userResponse.json();
+                showNotification(`✅ Регистрация успешна! Добро пожаловать, ${firstName}!`);
+                
+                // Перенаправляем на главную
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            }
+        } else {
+            const errorData = await response.json();
+            showNotification(`❌ ${errorData.detail || 'Ошибка регистрации'}`);
+        }
+    } catch (error) {
+        console.error('Ошибка при регистрации:', error);
+        showNotification('❌ Ошибка соединения с сервером');
+    }
 }
 
 // Выход из аккаунта
-function logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    showNotification('👋 Вы вышли из аккаунта');
-    updateNavAuth();
-    
-    // Если мы на странице профиля, перенаправляем на главную
-    if (window.location.pathname.includes('/profile')) {
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1500);
+async function logout() {
+    try {
+        const response = await fetch('/api/users/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            currentUser = null;
+            showNotification('👋 Вы вышли из аккаунта');
+            updateNavAuth();
+            
+            // Если мы на странице профиля, перенаправляем на главную
+            if (window.location.pathname.includes('/profile')) {
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при выходе:', error);
+        showNotification('❌ Ошибка при выходе из аккаунта');
     }
 }
 
@@ -160,41 +200,8 @@ function switchAuthTab(tab) {
     }
 }
 
-// Функция для удаления из избранного
-function removeFromWishlist(productId) {
-    if (!currentUser) {
-        showNotification('❌ Необходимо авторизоваться');
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1500);
-        return;
-    }
-    
-    const productIndex = currentUser.wishlist.findIndex(item => item.id === productId);
-    
-    if (productIndex !== -1) {
-        const productName = currentUser.wishlist[productIndex].name;
-        currentUser.wishlist.splice(productIndex, 1);
-        saveCurrentUser();
-        
-        // Обновляем пользователя в общем списке users
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            saveUsers();
-        }
-        
-        showNotification(`🗑️ ${productName} удален из избранного`);
-        
-        // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('/profile')) {
-            loadProfile();
-        }
-    }
-}
-
 // Загрузка профиля пользователя
-function loadProfile() {
+async function loadProfile() {
     const profileContainer = document.getElementById('profileContainer');
     if (!profileContainer) return;
 
@@ -220,9 +227,9 @@ function loadProfile() {
                 <i class="fas fa-user"></i>
             </div>
             <div class="profile-info">
-                <h2>${currentUser.firstName} ${currentUser.lastName}</h2>
+                <h2>${currentUser.first_name} ${currentUser.last_name}</h2>
                 <p><i class="fas fa-envelope"></i> ${currentUser.email}</p>
-                <p><i class="fas fa-calendar"></i> На сайте с ${new Date(currentUser.registeredAt).toLocaleDateString('ru-RU')}</p>
+                <p><i class="fas fa-calendar"></i> На сайте с ${new Date(currentUser.created_at).toLocaleDateString('ru-RU')}</p>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
                 </button>
@@ -231,164 +238,29 @@ function loadProfile() {
         
         <div class="profile-stats">
             <div class="stat-card">
-                <div class="stat-value">${currentUser.purchases?.length || 0}</div>
+                <div class="stat-value">0</div>
                 <div>Приобретено моделей</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">${currentUser.wishlist?.length || 0}</div>
+                <div class="stat-value">0</div>
                 <div>В избранном</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">${Math.floor((currentUser.purchases?.reduce((sum, item) => sum + item.price, 0) || 0) * 0.1)}</div>
+                <div class="stat-value">${currentUser.bonus_points || 0}</div>
                 <div>Бонусных баллов</div>
             </div>
         </div>
         
         <h3 style="color: var(--dark-blue); margin: 2rem 0 1rem;">Мои покупки</h3>
         <div class="products-grid" id="purchasesGrid">
-            ${currentUser.purchases?.length > 0 ? 
-                currentUser.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).map(purchase => `
-                    <div class="product-card">
-                        <div class="product-image" onclick="window.location.href='/product?id=${purchase.id}'" style="cursor: pointer;">
-                            ${purchase.preview ? 
-                                `<img src="${purchase.preview}" alt="${purchase.name}" style="width: 100%; height: 100%; object-fit: cover;" 
-                                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${purchase.image || 'fa-cube'}\' style=\'font-size: 3rem;\'></i>'">` 
-                                : `<i class="fas ${purchase.image || 'fa-cube'}" style="font-size: 3rem;"></i>`
-                            }
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title" onclick="window.location.href='/product?id=${purchase.id}'" style="cursor: pointer;">${purchase.name}</h3>
-                            <p style="color: var(--gray); margin-bottom: 0.5rem;">${getCategoryName(purchase.category)}</p>
-                            <div class="product-price" style="font-size: 1.2rem;">${purchase.price.toLocaleString('ru-RU')} ₽</div>
-                            <p style="color: var(--gray); font-size: 0.9rem; margin: 0.5rem 0;">
-                                <i class="fas fa-calendar-alt"></i> ${new Date(purchase.date).toLocaleDateString('ru-RU')}
-                            </p>
-                            <button class="add-to-cart" style="width: 100%;" onclick="downloadProduct(${purchase.id})">
-                                <i class="fas fa-download"></i> Скачать
-                            </button>
-                        </div>
-                    </div>
-                `).join('') :
-                '<p style="color: var(--gray); grid-column: 1/-1; text-align: center; padding: 2rem;">У вас пока нет покупок</p>'
-            }
+            <p style="color: var(--gray); grid-column: 1/-1; text-align: center; padding: 2rem;">У вас пока нет покупок</p>
         </div>
 
         <h3 style="color: var(--dark-blue); margin: 2rem 0 1rem;">Избранное</h3>
         <div class="products-grid" id="wishlistGrid">
-            ${currentUser.wishlist?.length > 0 ? 
-                currentUser.wishlist.map(item => `
-                    <div class="product-card">
-                        <div class="product-image" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
-                            ${item.preview ? 
-                                `<img src="${item.preview}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;" 
-                                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${item.image}\' style=\'font-size: 3rem;\'></i>'">` 
-                                : `<i class="fas ${item.image}" style="font-size: 3rem;"></i>`
-                            }
-                        </div>
-                        <div class="product-info">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3 class="product-title" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">${item.name}</h3>
-                                <button class="remove-wishlist-btn" onclick="removeFromWishlist(${item.id})" title="Удалить из избранного">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            <p style="color: var(--gray); margin-bottom: 0.5rem;">${getCategoryName(item.category)}</p>
-                            <div class="product-price">${item.price.toLocaleString('ru-RU')} ₽</div>
-                            <button class="add-to-cart" onclick="addToCart(${item.id})" style="width: 100%;">
-                                <i class="fas fa-shopping-cart"></i> В корзину
-                            </button>
-                        </div>
-                    </div>
-                `).join('') :
-                '<p style="color: var(--gray); grid-column: 1/-1; text-align: center; padding: 2rem;">В избранном пока нет товаров</p>'
-            }
+            <p style="color: var(--gray); grid-column: 1/-1; text-align: center; padding: 2rem;">В избранном пока нет товаров</p>
         </div>
     `;
-}
-
-// Функция для скачивания товара
-function downloadProduct(productId) {
-    if (!currentUser) {
-        showNotification('❌ Необходимо авторизоваться');
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1500);
-        return;
-    }
-    
-    const product = products.find(p => p.id === productId);
-    if (product) {
-        showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
-        // Здесь можно добавить реальную логику скачивания файла
-    }
-}
-
-// Добавление в избранное
-function addToWishlist(productId) {
-    if (!currentUser) {
-        showNotification('❌ Войдите, чтобы добавлять в избранное');
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1500);
-        return;
-    }
-
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    if (!currentUser.wishlist) {
-        currentUser.wishlist = [];
-    }
-
-    // Проверяем, есть ли уже товар в избранном
-    const existingItemIndex = currentUser.wishlist.findIndex(item => item.id === productId);
-    
-    if (existingItemIndex === -1) {
-        // Добавляем в избранное
-        currentUser.wishlist.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            category: product.category,
-            image: product.image,
-            preview: product.preview,
-        });
-        
-        saveCurrentUser();
-        
-        // Обновляем пользователя в общем списке users
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            saveUsers();
-        }
-        
-        showNotification(`❤️ ${product.name} добавлен в избранное!`);
-        
-        // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('/profile')) {
-            loadProfile();
-        }
-    } else {
-        // Удаляем из избранного
-        const productName = currentUser.wishlist[existingItemIndex].name;
-        currentUser.wishlist.splice(existingItemIndex, 1);
-        saveCurrentUser();
-        
-        // Обновляем пользователя в общем списке users
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            saveUsers();
-        }
-        
-        showNotification(`🗑️ ${productName} удален из избранного`);
-        
-        // Если мы на странице профиля, обновляем отображение
-        if (window.location.pathname.includes('/profile')) {
-            loadProfile();
-        }
-    }
 }
 
 // Получение названия категории
@@ -401,12 +273,29 @@ function getCategoryName(category) {
     return categories[category] || category;
 }
 
+// Делаем функции и переменные глобальными
+window.currentUser = currentUser;
+window.checkAuth = checkAuth;
+window.updateNavAuth = updateNavAuth;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.logout = logout;
+window.switchAuthTab = switchAuthTab;
+window.loadProfile = loadProfile;
+window.getCategoryName = getCategoryName;
+
 // Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    updateNavAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
     
     // Если мы на странице профиля, загружаем профиль
     if (window.location.pathname.includes('/profile')) {
         loadProfile();
+    }
+    
+    // Если мы на странице входа, проверяем не авторизован ли уже пользователь
+    if (window.location.pathname.includes('/login') && currentUser) {
+        // Если пользователь уже авторизован, перенаправляем на главную
+        window.location.href = '/';
     }
 });
