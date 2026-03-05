@@ -350,17 +350,20 @@ async function loadProfile() {
         await loadProducts();
     }
 
-    // Загружаем заказы пользователя
+    // Загружаем заказы пользователя через правильную ручку /api/orders/my
     let userOrders = [];
     
     try {
-        const ordersResponse = await fetch('/api/orders/?user_id=' + currentUser.id, {
+        console.log('Загрузка заказов через /api/orders/my');
+        const ordersResponse = await fetch('/api/orders/my', {
             credentials: 'include'
         });
+        
         if (ordersResponse.ok) {
             userOrders = await ordersResponse.json();
-            console.log('Заказы с сервера:', userOrders);
+            console.log('Заказы с сервера (только мои):', userOrders);
         } else {
+            console.error('Ошибка загрузки заказов:', ordersResponse.status);
             // Если сервер недоступен, берем из localStorage
             userOrders = JSON.parse(localStorage.getItem(`orders_${currentUser.id}`)) || [];
         }
@@ -456,15 +459,18 @@ async function loadProfile() {
                             <div class="order-header">
                                 <span><strong>Заказ #${order.id}</strong></span>
                                 <span>${new Date(order.created_at).toLocaleDateString('ru-RU')}</span>
-                                <span><strong>${order.total_sum.toLocaleString('ru-RU')} ₽</strong></span>
+                                <span><strong>${order.total_sum?.toLocaleString('ru-RU') || 0} ₽</strong></span>
                             </div>
                             <div class="order-items">
-                                ${order.items ? order.items.map(item => `
-                                    <div class="order-item">
-                                        <span>${item.product_name || 'Товар'}</span>
-                                        <span>${item.price?.toLocaleString('ru-RU') || item.price_at_buy?.toLocaleString('ru-RU') || 0} ₽ × ${item.quantity || 1}</span>
-                                    </div>
-                                `).join('') : ''}
+                                ${order.items && order.items.length > 0 ? 
+                                    order.items.map(item => `
+                                        <div class="order-item">
+                                            <span>${item.product_name || 'Товар'}</span>
+                                            <span>${(item.price || item.price_at_buy || 0).toLocaleString('ru-RU')} ₽ × ${item.quantity || 1}</span>
+                                        </div>
+                                    `).join('') : 
+                                    '<div class="order-item">Нет товаров в заказе</div>'
+                                }
                             </div>
                         </div>
                     `).join('') :
@@ -525,7 +531,7 @@ function renderFavorites() {
                         <button class="add-to-cart" onclick="addToCart(${product.id})" style="flex: 2;">
                             <i class="fas fa-shopping-cart"></i> В корзину
                         </button>
-                        <button class="remove-wishlist-btn" onclick="removeFromFavorites(${fav.product_id})" style="flex: 1; background: #ff4444; color: white; border: none; border-radius: 8px; cursor: pointer;" title="Удалить из избранного">
+                        <button class="remove-wishlist-btn" onclick="event.stopPropagation(); removeFromFavorites(${fav.product_id})" style="flex: 1; background: #ff4444; color: white; border: none; border-radius: 8px; cursor: pointer;" title="Удалить из избранного">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -709,7 +715,7 @@ function saveFavoritesLocally(productId, product) {
     }
 }
 
-// Удаление из избранного - ИСПРАВЛЕНО для использования правильной ручки
+// Удаление из избранного
 async function removeFromFavorites(productId) {
     if (!currentUser) {
         showNotification('❌ Необходимо авторизоваться');
@@ -721,15 +727,23 @@ async function removeFromFavorites(productId) {
     const productName = favoriteItem?.product_details?.name || 'Товар';
 
     try {
-        console.log(`Удаление товара ${productId} из избранного через DELETE /api/favorite/${productId}`);
+        const url = `/api/favorite/${productId}`;
+        console.log(`🔄 Отправка DELETE запроса на ${url}`);
         
-        const response = await fetch(`/api/favorite/${productId}`, {
+        const response = await fetch(url, {
             method: 'DELETE',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            }
         });
 
+        console.log(`📥 Статус ответа: ${response.status} ${response.statusText}`);
+
         // Проверяем успешность (204 No Content или 200 OK)
-        if (response.ok || response.status === 204) {
+        if (response.status === 204 || response.ok) {
+            console.log(`✅ Товар ${productId} успешно удален из избранного на сервере`);
+            
             // Удаляем из локального массива
             favorites = favorites.filter(item => item.product_id !== productId);
             window.favorites = favorites;
@@ -756,17 +770,24 @@ async function removeFromFavorites(productId) {
                 }
             }
         } else {
-            // Если сервер вернул ошибку, пытаемся понять причину
+            // Если сервер вернул ошибку, пытаемся получить детали
+            console.error(`❌ Ошибка при удалении: ${response.status}`);
+            
             let errorMessage = 'Ошибка при удалении из избранного';
             try {
                 const errorData = await response.json();
+                console.error('Детали ошибки:', errorData);
                 errorMessage = errorData.detail || errorMessage;
             } catch (e) {
+                console.error('Не удалось распарсить ответ:', e);
                 // Если не удалось распарсить JSON
                 if (response.status === 404) {
                     errorMessage = 'Товар не найден в избранном';
                 } else if (response.status === 401) {
                     errorMessage = 'Необходимо авторизоваться';
+                } else if (response.status === 422) {
+                    errorMessage = 'Неверный ID товара';
+                    console.error('Проверьте формат product_id:', productId);
                 }
             }
             
@@ -774,11 +795,12 @@ async function removeFromFavorites(productId) {
             
             // Если товар не найден на сервере, но есть локально, удаляем локально
             if (response.status === 404) {
+                console.log('🔄 Товар не найден на сервере, удаляем локально');
                 removeFavoritesLocally(productId);
             }
         }
     } catch (error) {
-        console.error('Ошибка при удалении из избранного:', error);
+        console.error('❌ Ошибка при выполнении запроса:', error);
         showNotification('❌ Ошибка соединения с сервером. Удаляем локально...');
         removeFavoritesLocally(productId);
     }
@@ -866,6 +888,27 @@ async function checkFavoriteStatus(productId) {
     return false;
 }
 
+// Функция для отладки избранного
+function debugFavorites() {
+    console.log('=== ОТЛАДКА ИЗБРАННОГО ===');
+    console.log('currentUser:', currentUser);
+    console.log('favorites массив:', favorites);
+    console.log('favorites.length:', favorites.length);
+    
+    favorites.forEach((fav, index) => {
+        console.log(`[${index}] favorite:`, fav);
+        console.log(`[${index}] product_id:`, fav.product_id);
+        console.log(`[${index}] product_details:`, fav.product_details);
+    });
+    
+    // Проверяем, что отправляется в DELETE запросе
+    if (favorites.length > 0) {
+        const testId = favorites[0].product_id;
+        console.log(`Пример DELETE запроса: /api/favorite/${testId}`);
+    }
+    console.log('=== КОНЕЦ ОТЛАДКИ ===');
+}
+
 // Делаем функции и переменные глобальными
 window.currentUser = currentUser;
 window.favorites = favorites;
@@ -883,6 +926,7 @@ window.removeFromFavorites = removeFromFavorites;
 window.checkFavoriteStatus = checkFavoriteStatus;
 window.downloadProduct = downloadProduct;
 window.getPurchasedProducts = getPurchasedProducts;
+window.debugFavorites = debugFavorites;
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
