@@ -13,7 +13,7 @@ class Product(Base):
 
     # карточка товара
     category = Column(String(length=20), nullable=False)
-    preview_image = Column(String(255), nullable=True) # главная картинка
+    preview_image = Column(String, nullable=True) # главная картинка
     images = Column(JSON, nullable=True) # список доп. изображений или рендеров
 
     # характеристики
