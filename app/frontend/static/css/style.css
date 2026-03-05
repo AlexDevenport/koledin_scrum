@@ -1034,3 +1034,178 @@ body {
     padding: 0.3rem 0;
     color: #666;
 }
+
+/* Скрытие элемента профиля для неавторизованных */
+.nav-menu a[href="/profile"] {
+    display: block;
+}
+
+/* Убедимся, что элемент li тоже правильно отображается/скрывается */
+.nav-menu li:has(a[href="/profile"]) {
+    transition: display 0.3s ease;
+}
+
+/* Стили для вкладок профиля */
+.profile-tabs {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.profile-tab {
+    padding: 0.8rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.profile-tab:hover {
+    color: var(--primary-blue);
+}
+
+.profile-tab.active {
+    border-bottom: 3px solid var(--primary-blue);
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+.profile-tab-content {
+    transition: opacity 0.3s ease;
+}
+
+/* Стили для избранного в профиле */
+.favorite-product {
+    position: relative;
+    border: 2px solid #ff4444;
+}
+
+.remove-wishlist-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-wishlist-btn:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(255, 68, 68, 0.3);
+}
+
+/* Стили для уведомлений */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1e4b8c, #4a90e2);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+    font-size: 1rem;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Стили для вкладок профиля */
+.profile-tabs {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.profile-tab {
+    padding: 0.8rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    color: var(--gray);
+}
+
+.profile-tab:hover {
+    color: var(--primary-blue);
+}
+
+.profile-tab.active {
+    border-bottom: 3px solid var(--primary-blue);
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+.profile-tab-content {
+    transition: opacity 0.3s ease;
+}
+
+/* Стили для избранного в профиле */
+.favorite-product {
+    position: relative;
+    border: 2px solid #ff4444;
+}
+
+.remove-wishlist-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-wishlist-btn:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(255, 68, 68, 0.3);
+}
+
+/* Стили для уведомлений */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1e4b8c, #4a90e2);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+    font-size: 1rem;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

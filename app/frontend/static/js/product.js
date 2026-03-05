@@ -37,9 +37,9 @@ async function displayProductDetail() {
     }
 
     // Проверяем, есть ли товар в избранном
-    let inWishlist = false;
+    let inFavorites = false;
     if (window.currentUser) {
-        inWishlist = await checkWishlistStatus(productId);
+        inFavorites = await checkFavoriteStatus(productId);
     }
 
     const productDetail = document.getElementById('productDetail');
@@ -113,8 +113,8 @@ async function displayProductDetail() {
                 <button class="add-to-cart-detail" onclick="addToCart(${product.id})">
                     <i class="fas fa-shopping-cart"></i> Добавить в корзину
                 </button>
-                <button class="wishlist-btn ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${product.id})" id="wishlistBtn">
-                    <i class="fas ${inWishlist ? 'fa-heart' : 'fa-heart'}"></i>
+                <button class="wishlist-btn ${inFavorites ? 'active' : ''}" onclick="toggleFavorite(${product.id})" id="wishlistBtn">
+                    <i class="fas ${inFavorites ? 'fa-heart' : 'fa-heart'}"></i>
                 </button>
             </div>
         </div>
@@ -122,7 +122,7 @@ async function displayProductDetail() {
 }
 
 // Переключение избранного
-async function toggleWishlist(productId) {
+async function toggleFavorite(productId) {
     if (!window.currentUser) {
         showNotification('❌ Войдите, чтобы добавлять в избранное');
         setTimeout(() => {
@@ -135,9 +135,9 @@ async function toggleWishlist(productId) {
     const isActive = wishlistBtn.classList.contains('active');
     
     if (isActive) {
-        await removeFromWishlist(productId);
+        await removeFromFavorites(productId);
     } else {
-        await addToWishlist(productId);
+        await addToFavorites(productId);
     }
 }
 
@@ -200,7 +200,7 @@ function goBack() {
 window.displayProductDetail = displayProductDetail;
 window.changeImage = changeImage;
 window.goBack = goBack;
-window.toggleWishlist = toggleWishlist;
+window.toggleFavorite = toggleFavorite;
 
 // Загружаем товар при открытии страницы
 document.addEventListener('DOMContentLoaded', displayProductDetail);
