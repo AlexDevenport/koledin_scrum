@@ -49,3 +49,11 @@ class OrderCrud(BaseCrud):
             stmt = select(cls.model).order_by(cls.model.created_at.desc())
             result = await session.execute(stmt)
             return result.scalars().all()
+        
+
+    async def get_by_user_id(self, user_id: int) -> list[Order]:
+        async with async_session_maker() as session:
+            query = select(self.model).where(self.model.user_id == user_id)\
+                                    .order_by(self.model.created_at.desc())
+            result = await session.execute(query)
+            return result.scalars().all()
