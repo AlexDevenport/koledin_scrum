@@ -1,3 +1,4 @@
+# .\.venv\Scripts\activate
 # alembic:
 # alembic revision --autogenerate
 # alembic upgrade head

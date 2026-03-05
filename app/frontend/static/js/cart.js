@@ -19,16 +19,16 @@ function displayCart() {
     
     let total = 0;
     const cartItems = cart.map(item => {
-        const itemTotal = item.price; // quantity всегда 1
+        const itemTotal = item.price;
         total += itemTotal;
-        const product = products.find(p => p.id === item.id);
         
         return `
             <div class="cart-item">
                 <div class="cart-item-image" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
-                    ${product?.preview ? 
-                        `<img src="${product.preview}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">` 
-                        : `<i class="fas ${item.image}" style="font-size: 2rem; color: white; display: flex; align-items: center; justify-content: center; height: 100%;"></i>`
+                    ${item.preview_image ? 
+                        `<img src="${item.preview_image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;" 
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-cube\\' style=\\'font-size: 2rem; color: white; display: flex; align-items: center; justify-content: center; height: 100%;\\'></i>'">` 
+                        : `<i class="fas fa-cube" style="font-size: 2rem; color: white; display: flex; align-items: center; justify-content: center; height: 100%;"></i>`
                     }
                 </div>
                 <div class="cart-item-title" onclick="window.location.href='/product?id=${item.id}'" style="cursor: pointer;">
@@ -57,14 +57,14 @@ function displayCart() {
 }
 
 // Оформление заказа
-function checkout() {
+async function checkout() {
     if (cart.length === 0) {
         showNotification('❌ Корзина пуста!');
         return;
     }
     
     // Проверяем, авторизован ли пользователь
-    if (!currentUser) {
+    if (!window.currentUser) {
         showNotification('❌ Для оформления заказа необходимо войти в аккаунт');
         setTimeout(() => {
             window.location.href = '/login';
@@ -74,47 +74,109 @@ function checkout() {
     
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     
-    // Добавляем товары в историю покупок пользователя
-    if (!currentUser.purchases) {
-        currentUser.purchases = [];
-    }
+    // Создаем заказ на сервере в правильном формате
+    const orderData = {
+        user_id: window.currentUser.id,
+        items: cart.map(item => ({
+            product_id: item.id,
+            quantity: 1,
+            price_at_buy: item.price
+        }))
+    };
     
-    // Добавляем каждый товар из корзины в покупки
-    cart.forEach(item => {
-        const product = products.find(p => p.id === item.id);
-        if (product) {
-            currentUser.purchases.push({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                category: product.category,
-                image: product.image,
-                preview: product.preview,
-                date: new Date().toISOString()
-            });
+    console.log('Отправка заказа:', orderData);
+    
+    try {
+        const response = await fetch('/api/orders/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData),
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const createdOrder = await response.json();
+            console.log('Заказ создан:', createdOrder);
+            
+            showNotification(`✅ Заказ №${createdOrder.id} оформлен на сумму ${total.toLocaleString('ru-RU')} ₽! Спасибо за покупку!`);
+            
+            // Сохраняем заказ в localStorage для отображения в профиле
+            saveOrderToLocalStorage(createdOrder, cart);
+            
+            // Очищаем корзину
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            displayCart();
+        } else {
+            const errorData = await response.json();
+            console.error('Ошибка сервера:', errorData);
+            showNotification(`❌ ${errorData.detail || 'Ошибка при оформлении заказа'}`);
         }
-    });
-    
-    // Сохраняем обновленные данные пользователя
-    saveCurrentUser();
-    
-    // Обновляем пользователя в общем списке users
-    const userIndex = users.findIndex(u => u.id === currentUser.id);
-    if (userIndex !== -1) {
-        users[userIndex] = currentUser;
-        saveUsers();
+    } catch (error) {
+        console.error('Ошибка при оформлении заказа:', error);
+        showNotification('❌ Ошибка соединения с сервером. Используем локальное сохранение...');
+        
+        // Если сервер недоступен, сохраняем заказ локально
+        const localOrder = saveOrderLocally(cart, total);
+        showNotification(`✅ Заказ №${localOrder.id} оформлен локально на сумму ${total.toLocaleString('ru-RU')} ₽!`);
+        
+        // Очищаем корзину
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        displayCart();
     }
+}
+
+// Сохранение заказа в localStorage (для отображения в профиле)
+function saveOrderToLocalStorage(order, cartItems) {
+    // Получаем существующие заказы
+    let userOrders = JSON.parse(localStorage.getItem(`orders_${window.currentUser.id}`)) || [];
     
-    showNotification(`✅ Заказ оформлен на сумму ${total.toLocaleString('ru-RU')} ₽! Спасибо за покупку!`);
+    // Создаем заказ с товарами
+    const orderWithItems = {
+        ...order,
+        items: cartItems.map(item => ({
+            product_id: item.id,
+            product_name: item.name,
+            price: item.price,
+            quantity: 1
+        }))
+    };
     
-    // Очищаем корзину
-    cart = [];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    displayCart();
+    userOrders.push(orderWithItems);
+    localStorage.setItem(`orders_${window.currentUser.id}`, JSON.stringify(userOrders));
+}
+
+// Локальное сохранение заказа (если сервер недоступен)
+function saveOrderLocally(cartItems, total) {
+    const orderId = Date.now();
+    const order = {
+        id: orderId,
+        user_id: window.currentUser.id,
+        total_sum: total,
+        created_at: new Date().toISOString(),
+        items: cartItems.map(item => ({
+            product_id: item.id,
+            product_name: item.name,
+            price: item.price,
+            quantity: 1
+        }))
+    };
+    
+    // Получаем существующие заказы
+    let userOrders = JSON.parse(localStorage.getItem(`orders_${window.currentUser.id}`)) || [];
+    userOrders.push(order);
+    localStorage.setItem(`orders_${window.currentUser.id}`, JSON.stringify(userOrders));
+    
+    return order;
 }
 
 // Загружаем корзину при открытии страницы
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadProducts();
     displayCart();
 });

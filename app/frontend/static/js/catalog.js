@@ -11,9 +11,10 @@ function displayProducts(filter = 'all') {
     productsGrid.innerHTML = filteredProducts.map(product => `
         <div class="product-card" data-category="${product.category}">
             <div class="product-image" onclick="window.location.href='/product?id=${product.id}'" style="cursor: pointer;">
-                ${product.preview ? 
-                    `<img src="${product.preview}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${product.image}\' style=\'font-size: 3rem;\'></i>'">` 
-                    : `<i class="fas ${product.image}"></i>`
+                ${product.preview_image ? 
+                    `<img src="${product.preview_image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" 
+                        onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-cube\' style=\'font-size: 3rem;\'></i>'">` 
+                    : `<i class="fas fa-cube" style="font-size: 3rem;"></i>`
                 }
             </div>
             <div class="product-info">
@@ -28,16 +29,6 @@ function displayProducts(filter = 'all') {
             </div>
         </div>
     `).join('');
-}
-
-// Получение названия категории
-function getCategoryName(category) {
-    const categories = {
-        'characters': 'Персонажи',
-        'architecture': 'Архитектура',
-        'oil': 'Нефть'
-    };
-    return categories[category] || category;
 }
 
 // Инициализация фильтров
@@ -65,14 +56,13 @@ function initFilters() {
     // Если есть параметр категории, отображаем отфильтрованные товары
     if (categoryParam) {
         displayProducts(categoryParam);
+    } else {
+        displayProducts();
     }
 }
 
 // Загрузка товаров при открытии страницы
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadProducts();
     initFilters();
-    // Если нет параметра категории, показываем все товары
-    if (!new URLSearchParams(window.location.search).get('category')) {
-        displayProducts();
-    }
 });
