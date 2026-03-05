@@ -26,22 +26,30 @@ async function checkAuth() {
     updateNavAuth();
 }
 
-// Обновление навигации (кнопка входа/выхода)
+// Обновление навигации (кнопка входа/выхода и скрытие/показ профиля)
 function updateNavAuth() {
     const navMenu = document.querySelector('.nav-menu');
     if (!navMenu) return;
 
-    // Удаляем существующую кнопку авторизации если есть
+    // Находим существующие элементы
+    const profileLink = navMenu.querySelector('a[href="/profile"]')?.parentElement;
     const existingAuthItem = document.querySelector('.nav-auth-item');
+    
+    // Удаляем существующую кнопку авторизации если есть
     if (existingAuthItem) {
         existingAuthItem.remove();
     }
 
+    // Создаем элемент для авторизации
     const authItem = document.createElement('li');
     authItem.className = 'nav-auth-item';
 
     if (currentUser) {
-        // Пользователь авторизован
+        // Пользователь авторизован - показываем профиль и приветствие
+        if (profileLink) {
+            profileLink.style.display = 'block'; // Показываем профиль
+        }
+        
         authItem.innerHTML = `
             <div class="user-greeting">
                 <i class="fas fa-user-circle"></i>
@@ -52,7 +60,11 @@ function updateNavAuth() {
             </div>
         `;
     } else {
-        // Пользователь не авторизован
+        // Пользователь не авторизован - скрываем профиль
+        if (profileLink) {
+            profileLink.style.display = 'none'; // Скрываем профиль
+        }
+        
         authItem.innerHTML = `
             <a href="/login" class="auth-button">
                 <i class="fas fa-sign-in-alt"></i> Войти

@@ -1034,3 +1034,13 @@ body {
     padding: 0.3rem 0;
     color: #666;
 }
+
+/* Скрытие элемента профиля для неавторизованных */
+.nav-menu a[href="/profile"] {
+    display: block;
+}
+
+/* Убедимся, что элемент li тоже правильно отображается/скрывается */
+.nav-menu li:has(a[href="/profile"]) {
+    transition: display 0.3s ease;
+}
