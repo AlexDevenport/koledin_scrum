@@ -7,21 +7,15 @@ function getProductId() {
 // Текущий выбранный индекс изображения
 let currentImageIndex = 0;
 
-// Проверка, есть ли товар в избранном
-function isInWishlist(productId) {
-    if (!currentUser || !currentUser.wishlist) return false;
-    return currentUser.wishlist.some(item => item.id === productId);
-}
-
-// Проверка, куплен ли товар
-function isPurchased(productId) {
-    if (!currentUser || !currentUser.purchases) return false;
-    return currentUser.purchases.some(item => item.id === productId);
-}
-
 // Отображение детальной информации о товаре
-function displayProductDetail() {
+async function displayProductDetail() {
     const productId = getProductId();
+    
+    // Ждем загрузки товаров если они еще не загружены
+    if (products.length === 0) {
+        await loadProducts();
+    }
+    
     const product = products.find(p => p.id === productId);
     
     if (!product) {
@@ -29,32 +23,58 @@ function displayProductDetail() {
         return;
     }
 
+    // Увеличиваем счетчик просмотров
+    try {
+        await fetch(`/api/products/update/${productId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ views_count: (product.views_count || 0) + 1 })
+        });
+    } catch (error) {
+        console.error('Ошибка при обновлении просмотров:', error);
+    }
+
+    // Проверяем, есть ли товар в избранном
+    let inWishlist = false;
+    if (window.currentUser) {
+        inWishlist = await checkWishlistStatus(productId);
+    }
+
     const productDetail = document.getElementById('productDetail');
     if (!productDetail) return;
     
-    // Проверяем, в избранном ли товар и куплен ли он
-    const inWishlist = isInWishlist(productId);
-    const purchased = isPurchased(productId);
-    
     // Создаем HTML для галереи
-    const thumbnailsHtml = product.images.map((img, index) => `
+    const images = product.images || [product.preview_image];
+    const thumbnailsHtml = images.map((img, index) => `
         <div class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeImage(${index})">
-            <img src="${img}" alt="Фото товара ${index + 1}" onerror="this.parentElement.innerHTML='<div class=\'thumbnail-placeholder\'><i class=\'fas ${product.image}\'></i></div>'">
+            <img src="${img}" alt="Фото товара ${index + 1}" 
+                onerror="this.parentElement.innerHTML='<div class=\\'thumbnail-placeholder\\'><i class=\\'fas fa-cube\\'></i></div>'">
         </div>
     `).join('');
 
     // Создаем HTML для характеристик
-    const specsHtml = Object.entries(product.specs).map(([key, value]) => `
+    const specsHtml = `
         <div class="spec-item">
-            <span class="spec-label">${key}:</span>
-            <span>${value}</span>
+            <span class="spec-label">Полигоны:</span>
+            <span>${product.polygons_count?.toLocaleString() || 'Н/Д'}</span>
         </div>
-    `).join('');
+        <div class="spec-item">
+            <span class="spec-label">Текстуры:</span>
+            <span>${product.texture_quality || 'Н/Д'}</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Форматы:</span>
+            <span>${product.formats?.join(', ') || 'FBX/OBJ'}</span>
+        </div>
+    `;
 
     productDetail.innerHTML = `
         <div class="product-gallery">
             <div class="main-image" id="mainImage">
-                <img src="${product.images[0]}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${product.image}\' style=\'font-size: 5rem;\'></i>'">
+                <img src="${product.preview_image}" alt="${product.name}" 
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-cube\\' style=\\'font-size: 5rem;\\'></i>'">
             </div>
             <div class="thumbnail-container">
                 ${thumbnailsHtml}
@@ -67,15 +87,11 @@ function displayProductDetail() {
             
             <div class="product-meta">
                 <div class="product-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
-                    <span style="color: var(--gray); margin-left: 5px;">(4.5)</span>
+                    ${generateRatingStars(product.rating || 4.5)}
+                    <span style="color: var(--gray); margin-left: 5px;">(${product.rating || 4.5})</span>
                 </div>
                 <div style="color: var(--gray);">
-                    <i class="fas fa-eye"></i> 234 просмотра
+                    <i class="fas fa-eye"></i> ${product.views_count || 0} просмотров
                 </div>
             </div>
             
@@ -85,7 +101,7 @@ function displayProductDetail() {
             
             <div class="product-description">
                 <h3 style="margin-bottom: 1rem; color: var(--dark-blue);">Описание</h3>
-                <p style="line-height: 1.8;">${product.description}</p>
+                <p style="line-height: 1.8;">${product.description || 'Описание отсутствует'}</p>
             </div>
             
             <div class="product-specs">
@@ -94,14 +110,9 @@ function displayProductDetail() {
             </div>
             
             <div class="product-actions-detail">
-                ${purchased ? 
-                    `<button class="add-to-cart-detail" onclick="downloadProduct(${product.id})" style="background: linear-gradient(135deg, #28a745, #20c997);">
-                        <i class="fas fa-download"></i> Скачать (уже куплено)
-                    </button>` :
-                    `<button class="add-to-cart-detail" onclick="addToCart(${product.id})">
-                        <i class="fas fa-shopping-cart"></i> Добавить в корзину
-                    </button>`
-                }
+                <button class="add-to-cart-detail" onclick="addToCart(${product.id})">
+                    <i class="fas fa-shopping-cart"></i> Добавить в корзину
+                </button>
                 <button class="wishlist-btn ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${product.id})" id="wishlistBtn">
                     <i class="fas ${inWishlist ? 'fa-heart' : 'fa-heart'}"></i>
                 </button>
@@ -110,9 +121,9 @@ function displayProductDetail() {
     `;
 }
 
-// Переключение избранного (добавить/удалить)
-function toggleWishlist(productId) {
-    if (!currentUser) {
+// Переключение избранного
+async function toggleWishlist(productId) {
+    if (!window.currentUser) {
         showNotification('❌ Войдите, чтобы добавлять в избранное');
         setTimeout(() => {
             window.location.href = '/login';
@@ -120,70 +131,33 @@ function toggleWishlist(productId) {
         return;
     }
 
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    if (!currentUser.wishlist) {
-        currentUser.wishlist = [];
-    }
-
-    const existingItemIndex = currentUser.wishlist.findIndex(item => item.id === productId);
+    const wishlistBtn = document.getElementById('wishlistBtn');
+    const isActive = wishlistBtn.classList.contains('active');
     
-    if (existingItemIndex === -1) {
-        // Добавляем в избранное
-        currentUser.wishlist.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            category: product.category,
-            image: product.image,
-            preview: product.preview,
-        });
-        
-        saveCurrentUser();
-        
-        // Обновляем пользователя в общем списке users
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            saveUsers();
-        }
-        
-        showNotification(`❤️ ${product.name} добавлен в избранное!`);
-        
-        // Меняем иконку кнопки
-        const wishlistBtn = document.getElementById('wishlistBtn');
-        if (wishlistBtn) {
-            wishlistBtn.classList.add('active');
-            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
-        }
+    if (isActive) {
+        await removeFromWishlist(productId);
     } else {
-        // Удаляем из избранного
-        const productName = currentUser.wishlist[existingItemIndex].name;
-        currentUser.wishlist.splice(existingItemIndex, 1);
-        saveCurrentUser();
-        
-        // Обновляем пользователя в общем списке users
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            saveUsers();
-        }
-        
-        showNotification(`🗑️ ${productName} удален из избранного`);
-        
-        // Меняем иконку кнопки
-        const wishlistBtn = document.getElementById('wishlistBtn');
-        if (wishlistBtn) {
-            wishlistBtn.classList.remove('active');
-            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
-        }
+        await addToWishlist(productId);
     }
+}
+
+// Генерация звезд рейтинга
+function generateRatingStars(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
     
-    // Если мы на странице профиля, обновляем отображение
-    if (window.location.pathname.includes('/profile')) {
-        loadProfile();
+    let stars = '';
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star"></i>';
     }
+    if (halfStar) {
+        stars += '<i class="fas fa-star-half-alt"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star"></i>';
+    }
+    return stars;
 }
 
 // Смена изображения в галерее
@@ -196,8 +170,11 @@ function changeImage(index) {
     
     // Обновляем главное изображение
     const mainImage = document.getElementById('mainImage');
+    const images = product.images || [product.preview_image];
+    
     if (mainImage) {
-        mainImage.innerHTML = `<img src="${product.images[index]}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas ${product.image}\' style=\'font-size: 5rem;\'></i>'">`;
+        mainImage.innerHTML = `<img src="${images[index]}" alt="${product.name}" 
+            onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-cube\\' style=\\'font-size: 5rem;\\'></i>'">`;
     }
     
     // Обновляем активный thumbnail
@@ -210,16 +187,6 @@ function changeImage(index) {
     });
 }
 
-// Получение названия категории
-function getCategoryName(category) {
-    const categories = {
-        'characters': 'Персонажи',
-        'architecture': 'Архитектура',
-        'oil': 'Нефть'
-    };
-    return categories[category] || category;
-}
-
 // Функция возврата на предыдущую страницу
 function goBack() {
     if (document.referrer) {
@@ -229,22 +196,11 @@ function goBack() {
     }
 }
 
-// Функция для скачивания товара
-function downloadProduct(productId) {
-    if (!currentUser) {
-        showNotification('❌ Необходимо авторизоваться');
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1500);
-        return;
-    }
-    
-    const product = products.find(p => p.id === productId);
-    if (product) {
-        showNotification(`📥 Начинается загрузка файла "${product.name}"...`);
-        // Здесь можно добавить реальную логику скачивания файла
-    }
-}
+// Делаем функции глобальными
+window.displayProductDetail = displayProductDetail;
+window.changeImage = changeImage;
+window.goBack = goBack;
+window.toggleWishlist = toggleWishlist;
 
 // Загружаем товар при открытии страницы
 document.addEventListener('DOMContentLoaded', displayProductDetail);
